@@ -4,7 +4,12 @@ Modified version of [LeDuyKhang2004](github.com/LeDuyKhang2004)'s FlappyBird.
 
 Check out the original repo here: [DACS by LeDuyKhang2004](github.com/LeDuyKhang2004/DACS)
 
-Our code was initially 95% similar. However, we went different ways with our code while working with the user's database. LeDuyKhang2004 need to use a local [SQL Server 2022](microsoft.com/en-us/sql-server/sql-server-2022) (it is one of the requirements; he needs to submit this game as a project for his CS course). Meanwhile, I prefer a simpler method: store user data in a .db file using SQLite. After our databases were finished, the codes were too different.
+The original code and this version started out about 95% similar. However, we eventually diverged — mainly due to differences in how we handled the user database.
+
+- **LeDuyKhang2004** used a localhost server: a [SQL Server 2022](microsoft.com/en-us/sql-server/sql-server-2022) instance. This was required for his CS course project.
+- **This version** opts for simplicity: it uses a `flappybird.db` file by SQLite to store user data locally.
+
+As a result, the final versions are significantly different, especially in the database integration and user system logic.
 
 ---
 
