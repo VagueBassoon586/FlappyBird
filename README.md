@@ -1,4 +1,4 @@
-Modified version of LeDuyKhang2004's FlappyBird.
+Modified version of [LeDuyKhang2004](https://github.com/LeDuyKhang2004)'s FlappyBird.
 
 Check out his repo [here](https://github.com/LeDuyKhang2004/DACS).
 
