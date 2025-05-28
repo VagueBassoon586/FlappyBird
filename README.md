@@ -1,4 +1,4 @@
-# FlappyBird (Modified Version)
+# FlappyBird remake
 
 Modified version of [LeDuyKhang2004](https://github.com/LeDuyKhang2004)'s FlappyBird.
 
