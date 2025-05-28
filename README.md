@@ -1,4 +1,4 @@
-# 🎮 FlappyBird (Modified Version)
+# FlappyBird (Modified Version)
 
 Modified version of [LeDuyKhang2004](https://github.com/LeDuyKhang2004)'s FlappyBird.
 
@@ -34,8 +34,8 @@ Navigate to:
 
 ## If You Don’t Know How to Run a Java Project
 
-1. **Open your terminal**
-2. Navigate to the **root folder** of the FlappyBird project:
+1. 💻 **Open your terminal**
+2. Navigate to the 📁 **root folder** of the FlappyBird project:
 
 ```bash
 cd /path/to/the/root/project/folder
