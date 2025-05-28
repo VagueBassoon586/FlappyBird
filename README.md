@@ -10,9 +10,9 @@ Check out the original repo here: [DACS by LeDuyKhang2004](https://github.com/Le
 
 You can either:
 
-✅ **Download the ZIP**  
+**Download the ZIP**  
 or  
-✅ **Clone the repository** using this command:
+**Clone the repository** using this command:
 
 ```bash
 git clone https://github.com/LeDuyKhang2004/DACS
@@ -20,7 +20,7 @@ git clone https://github.com/LeDuyKhang2004/DACS
 
 ---
 
-## 🧠 If You Know How to Run a Java Project
+## If You Know How to Run a Java Project
 
 Navigate to:
 
@@ -32,7 +32,7 @@ Navigate to:
 
 ---
 
-## 😕 If You Don’t Know How to Run a Java Project
+## If You Don’t Know How to Run a Java Project
 
 1. **Open your terminal**
 2. Navigate to the **root folder** of the FlappyBird project:
