@@ -22,7 +22,7 @@ or
 **Clone the repository** using this command:
 
 ```bash
-git clone https://github.com/LeDuyKhang2004/DACS
+git clone https://github.com/VagueBassoon586/FlappyBird.git
 ```
 
 ---
