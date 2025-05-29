@@ -1,1 +1,2 @@
-flappybird.db
+*.db
+/bin/*.class

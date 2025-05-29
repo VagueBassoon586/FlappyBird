@@ -26,6 +26,10 @@ public class App {
 		}
 
 		String[] user = {LogIn.getUsername(), LogIn.getPassword()};
+		if (user[0] == null || user[1] == null) {
+			user[0] = "@ADMIN";
+			user[1] = "@PASSWORD";
+		}
 
 		System.out.println("Logged in as " + user[0]);
 

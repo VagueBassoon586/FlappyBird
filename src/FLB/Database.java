@@ -155,5 +155,8 @@ public Object[][] getLeaderBoard(String username) throws IOException {
 		}
 		return leaderboard.toArray(Object[][]::new);
 	}
+	public static void main(String[] args) {
+		// Use this for debugging
+	}
 
 }

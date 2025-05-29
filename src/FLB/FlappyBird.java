@@ -4,9 +4,11 @@ package FLB;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -57,54 +59,49 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 	private JScrollPane leaderboardScrollPane;
 	private boolean showLeaderboard = false;
 	
-	// Birds
-	int birdX = 45; // Vị trí của con chim cánh mép trái cửa sổ 45px
-	int birdY = 320; // Vị trí của con chim cánh mép trên cửa sổ 320px
+	// Origins (0, 0) is at top left corner.
+	// Birds initial position: (45, 320)
+	int birdX = 45;
+	int birdY = 320;
+	// Birds size: 34 x 24
 	int birdWidth = 34;
 	int birdHeight = 24;
 	private Bird bird;
 
 	// Vòng lặp game
 	private Timer gameLoop;
-	private int v_roi = 0;// Vận tốc rơi của chim
-	private int p = 1; // Trọng lực
+	private int vFall = 0;// Falling velocity
+	private int g = 1; // Gravity
 	
-	/* Các pipes(ống) */
-	// Vị trí ống xuất hiện
+	/* Pipes */
+	// Pipes initial position: (360, 0)
 	int pipeX = 360; 
-	// Tọa độ Y của ống trên (âm để đẩy ống lên trên)
 	int pipeY; 
-	//Chiều rộng của ống
+	// Pipes dimension: 64 x 512
 	int pipeWidth = 64; 
-	// Chiều cao của ống
 	int pipeHeight = 512;
-	// Vòng lặp ống 
+	// Loop of pipes 
 	private Timer placePipesTimer;
 
-	// Mảng chứa ống
+	// Array to hold pipes
 	private ArrayList<Pipe> pipes;
 	
-	// Dừng lại game
 	private Boolean gameOver = false;
 	private Boolean isGameStarted = false;
 
-	// Tính điểm
+	// Score
 	private double score = 0; 
 	
-	/* Tăng thời gian ống chạy nhanh hơn */
-	// Số ống đã vượt qua
 	private int pipesPassed = 0; 
 
-	// Tốc độ ban đầu của ống
+	// Pipes initial speed
 	private int pipeSpeed = 7; 
 
-	// Giới hạn tốc độ ống
+	// Pipes max speed
 	private int maxPipeSpeed = 20; 
 
-	// Thời gian xuất hiện ống (ms)
+	// Interval of pipes (ms)
 	private int pipeInterval = 1500; 
-
-	// Để nhớ lần cuối đã tăng tốc độ
 	private int lastSpeedUpdate = 0; 
 
 	class Bird{
@@ -125,110 +122,111 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		int width = pipeWidth;
 		int height = pipeHeight;
 		Image img;
-		Boolean passed = false;// Đánh dấu chim đã qua 1 ống 
+		Boolean passed = false; // Marks if bird have passed this pipes
 		
-		Pipe (Image img) {
+		Pipe (Image img) 
+		{
 			this.img = img;
 		}
 	}
 
-	public FlappyBird(String[] args) throws IOException {
+	public FlappyBird(String[] args) throws IOException 
+	{
 		this.username = args[0];
 		this.password = args[1];
 
 
 		setPreferredSize(new Dimension(360, 640));
-		// Tiếp nhận các sự kiện của phím
 		setFocusable(true); 
-		// Kiểm tra 3 hàm của keyList khi nhấn phím
 		KeyListener();
 
-		// Animation của Bird lúc chậm (vàng)
+		// Bird's animation (when slow)
 		slowDown = ImageIO.read(new File("res/img/bird1_yellow.png"));
 		slowMid = ImageIO.read(new File("res/img/bird2_yellow.png"));
 		slowUp = ImageIO.read(new File("res/img/bird3_yellow.png"));
 
-		// Animation của Bird lúc nhanh (đỏ)
+		// Bird's animation (when fast)
 		fastDown = ImageIO.read(new File("res/img/bird1_red.png"));
-		fastMid = ImageIO.read(new File("res/img/bird1_red.png"));
-		fastUp = ImageIO.read(new File("res/img/bird1_red.png"));
+		fastMid = ImageIO.read(new File("res/img/bird2_red.png"));
+		fastUp = ImageIO.read(new File("res/img/bird3_red.png"));
 
-		//Tải hình ảnh lên trên Frame
+		// Load images to frame
 		backgroundImg = ImageIO.read(new File("res/img/flappybirdbg.png"));
 		birdImg = ImageIO.read(new File("res/img/bird1_yellow.png"));
 		topPipImg = ImageIO.read(new File("res/img/toppipe.png"));
 		bottomImg = ImageIO.read(new File("res/img/bottompipe.png"));
 		bird = new Bird(birdImg);
 
-		// Thời gian ống xuất hiện
-		pipes = new ArrayList<>(); // Tạo 1 mảng trống để chứa các ống
+		// Time when pipes start appearing
+		pipes = new ArrayList<>(); // Empty array to hold pipes
 		placePipesTimer = new Timer(1500, (ActionEvent e) -> {
 					placePipes();
-				}); // phải gọi sự kiện để ống được thực hiện - 1,5s sẽ gọi ống 1 lần
+				}); // Pipes appear each 1.5s (1500 ms)
 
 		// Game timer
 		gameLoop = new Timer(20, (ActionEvent e) -> {
-					v_roi += p; // tăng vận tốc rơi
-					bird.y += v_roi; //vị trí của chim sẽ rơi th
-					// Thresshold điểm (quyết định số điểm tối thiểu để chuyển sang màu đỏ)
-					if ((int)score < 20)
+					vFall += g; // Increase falling velocity
+					bird.y += vFall; // Falling in y coordinates
+					// Point thresshol (switch from small to fast animation)
+					if ((int) score < 20)
 					{
-						// Animation màu vàng
-						if (v_roi < -5)
+						// Slow animation: yellow bird
+						if (vFall < -5)
 							bird.img = slowUp;
-						else if (v_roi < 5)
+						else if (vFall < 5)
 							bird.img = slowMid;
 						else
 							bird.img = slowDown;
 					}
 					else
 					{
-						// Animation màu đỏ
-						if (v_roi < -5)
+						// Fast animation: red bird
+						if (vFall < -5)
 							bird.img = fastUp;
-						else if (v_roi < 5)
+						else if (vFall < 5)
 							bird.img = fastMid;
 						else
 							bird.img = fastDown;
 					}
-					// Di chuyển các ống sang trái
-					for (int i = 0; i < pipes.size(); i++) {
+					// Move pipes to the left
+					for (int i = 0; i < pipes.size(); i++) 
+					{
 						Pipe pipe = pipes.get(i);
-						pipe.x -= pipeSpeed; // thời gian trôi của ống
+						pipe.x -= pipeSpeed; // Pipe speed
 						
-						// Nếu chim đã bay qua ống và chưa được đánh dấu
-						if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+						// If bird fly pass an unmark pipe
+						if (!pipe.passed && pipe.x + pipe.width < bird.x) 
+						{
 							pipe.passed = true;
 							score += 0.5;
 							pipesPassed++;
 							
-							// Chỉ tăng tốc 1 lần mỗi khi đạt mốc mới
-							if (pipesPassed != 0 && pipesPassed % 8 == 0 &&  pipesPassed != lastSpeedUpdate) { //% 8 là 2 cặp ống (4 ống) vì mỗi ống là 0,5 nên
-								if (pipeSpeed < maxPipeSpeed) {
-									pipeSpeed++; // Tăng tốc độ ống
-									pipeInterval = Math.min(2000, pipeInterval + 150); // Giãn khoảng cách tối đa 2s
-									placePipesTimer.setDelay(pipeInterval); // Cập nhật thời gian gọi ống
-									System.out.println("Speed: " + pipeSpeed + " | Pipe distance: " + pipeInterval);
+							// Only increase the speed once after passing 4 pipes
+							if (pipesPassed != 0 && pipesPassed % 8 == 0 &&  pipesPassed != lastSpeedUpdate) // %8 is 2 pair of pipes (4 pipes) since each pipe is 0.5
+							{
+								if (pipeSpeed < maxPipeSpeed) 
+								{
+									pipeSpeed++;
+									pipeInterval = Math.min(2000, pipeInterval + 150);
+									placePipesTimer.setDelay(pipeInterval);
 								}
 								lastSpeedUpdate = pipesPassed;
 							}
 						}
 						
-						//Xử lí khi va chạm ống thì game dừng
-						if (bird.x < pipe.x + pipe.width && bird.x + bird.width > pipe.x && bird.y < pipe.y + pipe.height && bird.y + bird.height > pipe.y) {
+						// Handle bird - pipes collision
+						if (bird.x < pipe.x + pipe.width && bird.x + bird.width > pipe.x && bird.y < pipe.y + pipe.height && bird.y + bird.height > pipe.y)
 							gameOver = true;
-						}
 					}
-					// Xoá ống đã đi qua khỏi màn hình
+
+					// Remove any pipe that went pass the game window
 					pipes.removeIf(pipe -> pipe.x + pipe.width < 0);
-					// Vẽ lại màn hình (gọi paintComponent)
 					repaint();
-					// Dừng game
-					if (bird.y > 640 || bird.y < 0 ) {
+					// Handle event when bird is too high or fall out of the window
+					if (bird.y > 640 || bird.y < 0 )
 						gameOver = true;
-						System.out.println("Game over");
-					}
-					if (gameOver) {
+					if (gameOver) 
+					{
 						placePipesTimer.stop();
 						gameLoop.stop();
 						startButton.setVisible(false);
@@ -237,21 +235,24 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 						okButton.setVisible(false);
 						isGameStarted = false;
 						// Cập nhật maxScore
-						if ((int) score > best) {
+						if ((int) score > best) 
+						{
 							New = true;
 							best = (int) score;
+							leaderboardScrollPane = null;
 							manager.updateScore(username, password, best);
 						}
 					}
 				});
 
-		// Nút Start
+		// Start button
 		startButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/start.png")), 104, 58)));
 		startButton.setBounds(51, 500, 104, 58);
 		startButton.addActionListener((ActionEvent e) -> {
 					startGame();
 				});
 
+		// Restart button
 		restartButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/restart.png")), 120, 40)));
 		restartButton.setBounds(120, 500, 120, 40);
 		restartButton.addActionListener((ActionEvent e) -> {
@@ -259,34 +260,42 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 				});
 		restartButton.setVisible(gameOver);
 	
-		// Nút Rank
+		// Rank Button
 		rankButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/rank.png")), 104, 58)));
 		rankButton.setBounds(206, 500, 104, 58);
 		rankButton.addActionListener((ActionEvent e) -> {
 				showLeaderboard = !showLeaderboard;
 				if (showLeaderboard) {
-					try {
+					try 
+					{
 						rankButton.setIcon(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/ok.png")), 120, 40)));
-					} catch (IOException e1) {
+					} 
+					catch (IOException e1) 
+					{
 						e1.printStackTrace(System.err);
 					}
 					rankButton.setBounds(120, 500, 120, 40);
 					
 				}
-				else if (!showLeaderboard) {
-					try {
+				else if (!showLeaderboard) 
+				{
+					try 
+					{
 						rankButton.setIcon(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/rank.png")), 104, 58)));
-					} catch (IOException e1) {
+					} 
+					catch (IOException e1) 
+					{
 						e1.printStackTrace(System.err);
 					}
 					rankButton.setBounds(206, 500, 104, 58);
 				}
 				startButton.setVisible(!showLeaderboard);
+				shareButton.setVisible(!showLeaderboard);
 				showLeaderboardTable();
 				repaint();
 				});
 
-		// Nút Menu
+		// Menu button
 		menuButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/menu.png")), 120, 40)));
 		menuButton.setBounds(120, 560, 120, 40);
 		menuButton.addActionListener((ActionEvent e) -> {
@@ -299,7 +308,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 					okButton.setVisible(false);
 					shareButton.setVisible(true);
 					birdY = 320;
-					v_roi = 0;
+					vFall = 0;
 					pipes.clear();
 					score = 0;
 					pipesPassed = 0;
@@ -310,7 +319,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 				});
 		menuButton.setVisible(gameOver || isPaused);
 
-		// Nút Okay
+		// OK button
 		okButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/ok.png")), 120, 40)));
 		okButton.setBounds(120, 440, 120, 40);
 		okButton.addActionListener((ActionEvent e) -> {
@@ -324,7 +333,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 				});
 		okButton.setVisible(gameOver && isPaused);
 
-		// Nút Share
+		// Share button
 		shareButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/share.png")), 120, 40)));
 		shareButton.setBounds(120, 595, 120, 40);
 		shareButton.addActionListener((ActionEvent e) -> {
@@ -335,7 +344,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 				});
 		shareButton.setVisible(startButton.isVisible());
 
-		// Bắt buộc để setBounds hoạt động
+		// Mandatory for .setBounds() to work properly
 		setLayout(null);
 		add(startButton);
 		add(restartButton);
@@ -345,75 +354,81 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		add(shareButton);
 	}
 
-	private void KeyListener() {
+	private void KeyListener() 
+	{
 		addKeyListener(this);
 	}
 
 	@Override
-	public void paintComponent(Graphics g){
+	public void paintComponent(Graphics g)
+	{
 		super.paintComponent(g);
 		Graphics2D G2D = (Graphics2D) g;
 
 		G2D.drawImage(backgroundImg, 0, 0, 360, 640, null);
 
-		if (!isGameStarted && !gameOver) {
-		try {
+		if (!isGameStarted && !gameOver) 
+		{
+		try 
+		{
 			BufferedImage logo = Helper.resizeImage(ImageIO.read(new File("res/img/logo.png")), 153, 24);
 			G2D.drawImage(logo, 5, 5, null);
-		} catch (IOException e) {
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace(System.err);
 		}
 		}
-		// Xoay chim theo vận tốc
+		/* Rotate bird base on speed */
 
-		/* Lấy góc của chim quay, v_roi * 3 để khiến cho góc quay dễ nhìn hơn */
-		/* Góc cao nhất:-45° (hướng lên trên 45 độ) */
-		/* Góc thấp nhất: +90° (hướng thẳng xuống dưới) */
-		double angle = Math.toRadians(Math.max(-45, Math.min(90, v_roi * 3)));
+		// Retrive bird's angle of rotation, 3 * vFall to make the rotation more noticable
+		// Góc cao nhất:-45° (hướng lên trên 45 độ)
+		// Góc thấp nhất: +90° (hướng thẳng xuống dưới)
+		double angle = Math.toRadians(Math.max(-45, Math.min(90, 3 * vFall)));
 
-		/* Lưu trạng thái đồ họa */
+		// Save graphics status
 		AffineTransform old = G2D.getTransform();
 
-		/* Di chuyển tâm của chim từ góc trái sang chính giữa con chim */
-		/* Do rotate() xoay ảnh quanh tâm --> tâm phải ở chính giữa */
+		// Move bird's origin from its left corner to the middle
+		// Since .rotate() use centre of origin to rotate --> origin must be in the middle.
 		G2D.translate(bird.x + bird.width / 2, bird.y + bird.height / 2);
 		G2D.rotate(angle);
 
-		/* Do thay đổi tâm, vị trí drawImage() cũng thay đổi, do đó phải vẽ lại chim theo tâm */
+		// Since the origin was changed, .drawImage()'s drawing position changed --> redraw bird at top left corner
 		G2D.drawImage(bird.img, -bird.width / 2, -bird.height / 2, bird.width, bird.height, null);
 
-		/* Reset */
+		// Reset
 		G2D.setTransform(old);
 		
-		//vẽ các ống 
+		// Draw pipes
 		for(Pipe pipe: pipes)
 			G2D.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height, null);
-		
-		// Vẽ score (điểm)
+	
 		if (isGameStarted && !showLeaderboard)
 		{
-			// Khởi tạo font chữ
+			// Initialize font
 			G2D.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 40f));
 
-			// Đổ bóng
+			// Score's Shadow
 			G2D.setColor(Color.DARK_GRAY);
 			G2D.drawString("" + (int) score, 182, 102);
 
-			// Hiển thị điểm
+			// Draw score
 			G2D.setColor(Color.WHITE);
 			G2D.drawString("" + (int)score, 180, 100);
 			
-			//Thêm chữ user: "Name" trên góc trái. ĐỔ BÓNG
+			// Username's shadow
 			G2D.setColor(Color.DARK_GRAY);
 			G2D.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 14f));
-			G2D.drawString("USER: " + username , 12, 22);
+			G2D.drawString("USER: " + username , 11, 21);
 			
-			//Thêm chữ usee: "Name: trên góc trái
+			// Draw username
 			G2D.setColor(Color.WHITE);
 			G2D.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 14f));
 			G2D.drawString("USER: " + username , 10, 20);
 		}
 
+		// Show current game status: Paused or playing
 		try {
 			if (!isPaused && !gameOver && isGameStarted) {
 				Image stat = Helper.resizeImage(ImageIO.read(new File("res/img/ClickToStop.png")), 30, 30);
@@ -427,16 +442,18 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			ex.printStackTrace(System.err);
 		}
 
+		// Show leaderboard
 		if (showLeaderboard) {
 			BufferedImage leaderBoard = null;
 			try {
-				leaderBoard = Helper.resizeImage(ImageIO.read(new File("res/img/leaderboard.png")), 260, 260);
+				leaderBoard = Helper.resizeImage(ImageIO.read(new File("res/img/leaderboard.png")), 350, 308);
 			} catch (IOException e) {
 				e.printStackTrace(System.err);
 			}
-			G2D.drawImage(leaderBoard, 50, 150, null);
+			G2D.drawImage(leaderBoard, 5, 150, null);
 		}
 
+		// Show menu's title: Get Ready
 		if (!isGameStarted && !gameOver && !showLeaderboard) {
 			try {
 				BufferedImage getReady = Helper.resizeImage(ImageIO.read(new File("res/img/getready.png")), 260, 60);
@@ -445,7 +462,8 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 				e.printStackTrace(System.err);
 			}
 		}
-	
+		
+		// Show score on banner and gameover title
 		else if (!isGameStarted && gameOver && !showLeaderboard)
 		{
 			try {
@@ -458,29 +476,29 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			}
 			G2D.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 18f));
 
-			// Đổ bóng
+			// Shadow
 			G2D.setColor(Color.DARK_GRAY);
 			G2D.drawString("MEDAL", 69, 321);
 			G2D.drawString("SCORE: " + (int) score, 201, 321);
 			G2D.drawString("BEST:  " + (int) best, 201, 391);
 
-			// Hiển thị banner điểm
+			// Score banner
 			G2D.setColor(new Color(249, 121, 93));
 			G2D.drawString("MEDAL", 68, 320);
 			G2D.drawString("SCORE: " + (int) score, 200, 320);
 			G2D.drawString("BEST:  " + (int) best, 200, 390);
 
-			//Thêm chữ user: "Name" trên góc trái. ĐỔ BÓNG
+			// Shadow
 			G2D.setColor(Color.DARK_GRAY);
 			G2D.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 14f));
-			G2D.drawString("USER: " + username , 12, 22);
+			G2D.drawString("USER: " + username , 11, 21);
 			
-			//Thêm chữ usee: "Name: trên góc trái
+			// Draw username
 			G2D.setColor(Color.WHITE);
 			G2D.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 14f));
 			G2D.drawString("USER: " + username , 10, 20);
 			
-			// Nếu là kỉ lục
+			// If the score is the user's highest score
 			if (New)
 			{
 				try {
@@ -492,13 +510,13 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 				}
 			}
 
-			// Hiển thị Medal
+			// Show medals
 			Image medal = null;
 			try {
 				if ((int) score < 10)
 					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Iron.png")), 60, 60);
 				else if ((int) score < 30)
-					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Copper.png")), 60, 60);
+					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Bronze.png")), 60, 60);
 				else if ((int) score < 60)
 					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Silver.png")), 60, 60);
 				else
@@ -542,7 +560,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		if (isGameStarted = true);
 		// Reset trạng thái game
 		bird.y = birdY;
-		v_roi = 0;
+		vFall = 0;
 		pipes.clear();
 		gameOver = false;
 		score = 0;
@@ -570,16 +588,17 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		repaint();
 	}
 
+	// 95% credit of this showLeaderboardTable() goes to ChatGPT 4o:
 	public void showLeaderboardTable() {
 		if (leaderboardScrollPane != null) {
 			leaderboardScrollPane.setVisible(showLeaderboard && !isGameStarted);
 			return;
 		}
 
-		// Dummy data
 		String[] columns = {"Rank", "Username", "Score"};
 		Object[][] data = null;
 		try {
+			// Extract list of players with highest score (max 100 players)
 			data = manager.getLeaderBoard(username);
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
@@ -598,37 +617,62 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			public Component getTableCellRendererComponent(JTable table, Object value,
 					boolean isSelected, boolean hasFocus, int row, int column) {
 
-				JLabel label = new JLabel();
+					JLabel label = new JLabel() {
+						@Override
+						protected void paintComponent(Graphics g) {
+							Graphics2D g2 = (Graphics2D) g.create();
+							g2.setFont(getFont());
+							g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+							String text = getText();
+							Icon icon = getIcon();
+
+							if (!(column == 0 && row >= 0 && row <= 3 && icon != null) && text != null && !text.isEmpty()) {
+								FontMetrics fm = g2.getFontMetrics();
+								int textWidth = fm.stringWidth(text);
+								int textHeight = fm.getAscent();
+
+								// Calculate X based on alignment
+								int x = switch (getHorizontalAlignment()) {
+									case SwingConstants.LEFT -> 0;
+									case SwingConstants.CENTER -> (getWidth() - textWidth) / 2;
+									case SwingConstants.RIGHT -> getWidth() - textWidth;
+									default -> 0;
+								};
+
+								int y = (getHeight() + textHeight) / 2 - 2; // Vertically center
+
+								g2.setColor(Color.GRAY); // Shadow color
+								g2.drawString(text, x + 1, y + 1); // Shadow (1px offset)
+							}
+
+							super.paintComponent(g); // Draw the actual label text
+							g2.dispose();
+						}
+					};
+
 				label.setOpaque(false);
-				label.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 14));
+				label.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 16));
 				label.setHorizontalAlignment(column == 2 ? SwingConstants.RIGHT :
 											column == 1 ? SwingConstants.LEFT :
 											SwingConstants.CENTER);
 
-				// Custom shadow text rendering
-				boolean isCurrentPlayer = false;
-				String playerUsername = username;
-				if (table.getValueAt(row, 1) != null) {
-					String rowUsername = table.getValueAt(row, 1).toString();
-					isCurrentPlayer = rowUsername.equalsIgnoreCase(playerUsername);
-				}
+				String rowUsername = table.getValueAt(row, 1).toString();
+				boolean isCurrentPlayer = rowUsername.equalsIgnoreCase(username);
 
 				if (value instanceof Icon icon) {
-					label.setIcon(icon);  // render the icon!
+					label.setIcon(icon);
 					label.setText("");
 				} else {
 					label.setText(String.valueOf(value));
 				}
 
-				if (isCurrentPlayer) {
-					label.setForeground(new Color(0, 255, 100)); // green
-				} else {
-					label.setForeground(Color.WHITE);
-				}
+				label.setForeground(isCurrentPlayer ? new Color(90, 170, 255) : Color.WHITE);
 
 				return label;
 			}
 		};
+
 
 		// Hide header
 		table.setTableHeader(null);
@@ -639,7 +683,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		table.setShowGrid(false);
 		table.setIntercellSpacing(new Dimension(0, 0));
 		table.setForeground(Color.WHITE);
-		table.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 14));
+		table.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 12));
 		table.setRowHeight(30);
 		table.setFocusable(false);
 		table.setBorder(BorderFactory.createEmptyBorder());
@@ -660,7 +704,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 
 		// Create scroll pane and strip all visuals
 		leaderboardScrollPane = new JScrollPane(table);
-		leaderboardScrollPane.setBounds(101, 210, 160, 190);
+		leaderboardScrollPane.setBounds(70, 245, 200, 175);
 		leaderboardScrollPane.setOpaque(false);
 		leaderboardScrollPane.getViewport().setOpaque(false);
 		leaderboardScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -698,7 +742,6 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		}
 
 		leaderboardScrollPane.setVisible(showLeaderboard && !isGameStarted);
-		// Final container styling
 		setLayout(null);
 		add(leaderboardScrollPane);
 		repaint();
@@ -732,12 +775,13 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			repaint();
 		}
 		else if(isGameStarted && e.getKeyCode() == KeyEvent.VK_SPACE ) 
-			v_roi = -9;
+			vFall = -9;
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 	}
+
 	@Override
 	public void keyReleased(KeyEvent e) {
 	}
