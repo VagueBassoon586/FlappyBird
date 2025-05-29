@@ -1,6 +1,5 @@
 package FLB;
 
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -37,7 +36,6 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-
 
 public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 
@@ -262,35 +260,35 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		rankButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/rank.png")), 104, 58)));
 		rankButton.setBounds(206, 500, 104, 58);
 		rankButton.addActionListener((ActionEvent e) -> {
-				showLeaderboard = !showLeaderboard;
-				if (showLeaderboard) {
-					try 
-					{
-						rankButton.setIcon(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/ok.png")), 120, 40)));
-					} 
-					catch (IOException e1) 
-					{
-						e1.printStackTrace(System.err);
+					showLeaderboard = !showLeaderboard;
+					if (showLeaderboard) {
+						try 
+						{
+							rankButton.setIcon(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/ok.png")), 120, 40)));
+						} 
+						catch (IOException e1) 
+						{
+							e1.printStackTrace(System.err);
+						}
+						rankButton.setBounds(120, 500, 120, 40);
+						
 					}
-					rankButton.setBounds(120, 500, 120, 40);
-					
-				}
-				else if (!showLeaderboard) 
-				{
-					try 
+					else if (!showLeaderboard) 
 					{
-						rankButton.setIcon(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/rank.png")), 104, 58)));
-					} 
-					catch (IOException e1) 
-					{
-						e1.printStackTrace(System.err);
+						try 
+						{
+							rankButton.setIcon(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/rank.png")), 104, 58)));
+						} 
+						catch (IOException e1) 
+						{
+							e1.printStackTrace(System.err);
+						}
+						rankButton.setBounds(206, 500, 104, 58);
 					}
-					rankButton.setBounds(206, 500, 104, 58);
-				}
-				startButton.setVisible(!showLeaderboard);
-				shareButton.setVisible(!showLeaderboard);
-				showLeaderboardTable();
-				repaint();
+					startButton.setVisible(!showLeaderboard);
+					shareButton.setVisible(!showLeaderboard);
+					showLeaderboardTable();
+					repaint();
 				});
 
 		// Menu button
@@ -381,8 +379,8 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		/* Rotate bird base on speed */
 
 		// Retrive bird's angle of rotation, 3 * vFall to make the rotation more noticable
-		// Góc cao nhất:-45° (hướng lên trên 45 độ)
-		// Góc thấp nhất: +90° (hướng thẳng xuống dưới)
+		// Highest upward angle: -45°
+		// Lowest downward angle: +90°
 		double angle = Math.toRadians(Math.max(-45, Math.min(90, 3 * vFall)));
 
 		// Save graphics status
