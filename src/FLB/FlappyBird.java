@@ -58,7 +58,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 	private boolean isPaused = false;
 	private JScrollPane leaderboardScrollPane;
 	private boolean showLeaderboard = false;
-	
+
 	// Origins (0, 0) is at top left corner.
 	// Birds initial position: (45, 320)
 	int birdX = 45;
@@ -72,7 +72,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 	private Timer gameLoop;
 	private int vFall = 0;// Falling velocity
 	private int g = 1; // Gravity
-	
+
 	/* Pipes */
 	// Pipes initial position: (360, 0)
 	int pipeX = 360; 
@@ -259,7 +259,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 					startGame();
 				});
 		restartButton.setVisible(gameOver);
-	
+
 		// Rank Button
 		rankButton = new JButton(new ImageIcon(Helper.resizeImage(ImageIO.read(new File("res/img/rank.png")), 104, 58)));
 		rankButton.setBounds(206, 500, 104, 58);
@@ -379,6 +379,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			e.printStackTrace(System.err);
 		}
 		}
+
 		/* Rotate bird base on speed */
 
 		// Retrive bird's angle of rotation, 3 * vFall to make the rotation more noticable
@@ -399,7 +400,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 
 		// Reset
 		G2D.setTransform(old);
-		
+
 		// Draw pipes
 		for(Pipe pipe: pipes)
 			G2D.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height, null);
@@ -429,36 +430,49 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		}
 
 		// Show current game status: Paused or playing
-		try {
-			if (!isPaused && !gameOver && isGameStarted) {
+		try 
+		{
+			if (!isPaused && !gameOver && isGameStarted) 
+			{
 				Image stat = Helper.resizeImage(ImageIO.read(new File("res/img/ClickToStop.png")), 30, 30);
 				G2D.drawImage(stat, 320, 10, null);
 			}
-			else if (isPaused && !gameOver && isGameStarted) {
+			else if (isPaused && !gameOver && isGameStarted) 
+			{
 				Image stat = Helper.resizeImage(ImageIO.read(new File("res/img/ClickToContinue.png")), 30, 30);
 				G2D.drawImage(stat, 320, 10, null);
 			}
-		} catch (IOException ex) {
+		}
+		catch (IOException ex) 
+		{
 			ex.printStackTrace(System.err);
 		}
 
 		// Show leaderboard
-		if (showLeaderboard) {
+		if (showLeaderboard) 
+		{
 			BufferedImage leaderBoard = null;
-			try {
+			try 
+			{
 				leaderBoard = Helper.resizeImage(ImageIO.read(new File("res/img/leaderboard.png")), 350, 308);
-			} catch (IOException e) {
+			} 
+			catch (IOException e) 
+			{
 				e.printStackTrace(System.err);
 			}
 			G2D.drawImage(leaderBoard, 5, 150, null);
 		}
 
 		// Show menu's title: Get Ready
-		if (!isGameStarted && !gameOver && !showLeaderboard) {
-			try {
+		if (!isGameStarted && !gameOver && !showLeaderboard) 
+		{
+			try 
+			{
 				BufferedImage getReady = Helper.resizeImage(ImageIO.read(new File("res/img/getready.png")), 260, 60);
 				G2D.drawImage(getReady, 50, 100, null);
-			} catch (IOException e) {
+			} 
+			catch (IOException e) 
+			{
 				e.printStackTrace(System.err);
 			}
 		}
@@ -478,13 +492,11 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 
 			// Shadow
 			G2D.setColor(Color.DARK_GRAY);
-			G2D.drawString("MEDAL", 69, 321);
 			G2D.drawString("SCORE: " + (int) score, 201, 321);
 			G2D.drawString("BEST:  " + (int) best, 201, 391);
 
 			// Score banner
 			G2D.setColor(new Color(249, 121, 93));
-			G2D.drawString("MEDAL", 68, 320);
 			G2D.drawString("SCORE: " + (int) score, 200, 320);
 			G2D.drawString("BEST:  " + (int) best, 200, 390);
 
@@ -502,8 +514,8 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			if (New)
 			{
 				try {
-					Image newRecord = Helper.resizeImage(ImageIO.read(new File("res/img/newScore.png")), 32, 16);
-					G2D.drawImage(newRecord, 160, 375, null);
+					Image newScore = Helper.resizeImage(ImageIO.read(new File("res/img/newScore.png")), 32, 16);
+					G2D.drawImage(newScore, 160, 375, null);
 					New = false;
 				} catch (IOException e) {
 					e.printStackTrace(System.err);
@@ -512,53 +524,65 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 
 			// Show medals
 			Image medal = null;
+			G2D.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 18f));
 			try {
-				if ((int) score < 10)
-					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Iron.png")), 60, 60);
-				else if ((int) score < 30)
+				if ((int) score < 20) 
+				{
 					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Bronze.png")), 60, 60);
-				else if ((int) score < 60)
+					G2D.setColor(Color.DARK_GRAY);
+					G2D.drawString("BRONZE", 64, 321);
+					G2D.setColor(new Color(249, 121, 93));
+					G2D.drawString("BRONZE", 63, 320);
+				}
+				else if ((int) score < 50)
+				{
 					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Silver.png")), 60, 60);
-				else
+					G2D.setColor(Color.DARK_GRAY);
+					G2D.drawString("SILVER", 67, 321);
+					G2D.setColor(new Color(249, 121, 93));
+					G2D.drawString("SILVER", 66, 320);
+				}
+				else if ((int) score < 100)
+				{
 					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Gold.png")), 60, 60);
-			} catch (IOException e) {
+					G2D.setColor(Color.DARK_GRAY);
+					G2D.drawString("GOLD", 75, 321);
+					G2D.setColor(new Color(249, 121, 93));
+					G2D.drawString("GOLD", 74, 320);
+				}
+				else
+				{
+					medal = Helper.resizeImage(ImageIO.read(new File("res/img/Platinum.png")), 60, 60);
+					G2D.setColor(Color.DARK_GRAY);
+					G2D.drawString("PLATINUM", 57, 321);
+					G2D.setColor(new Color(249, 121, 93));
+					G2D.drawString("PLATINUM", 56, 320);
+				}
+			} 
+			catch (IOException e) 
+			{
 				e.printStackTrace(System.err);
 			}
 			G2D.drawImage(medal, 64, 331, null);
 		}
 	}
 
-	/** 
-	 * 
-	 * Hàm tạo ống
-	 * 
-	 */
-	public void placePipes() {
-		
-		//???
+	public void placePipes() 
+	{
 		int randomPipeY = (int) (pipeY - pipeHeight / 4 - Math.random() * (pipeHeight/2));
 		int SpaceOfPipes = 640 / 4;
-		//Tạo ống trên
 		Pipe topPipe = new Pipe(topPipImg);
 		topPipe.y = randomPipeY;
-		//Thêm ống vào mảng pipes
 		pipes.add(topPipe);
-		
-		//Tạo ống dưới
 		Pipe botPipe = new Pipe(bottomImg);
 		botPipe.y = topPipe.y + SpaceOfPipes + pipeHeight;
 		pipes.add(botPipe);
-		
 	}
 
-	/** 
-	 * 
-	 * Hàm khởi động game
-	 * 
-	 */
-	public void startGame() {
+	public void startGame() 
+	{
 		if (isGameStarted = true);
-		// Reset trạng thái game
+		// Reset game status
 		bird.y = birdY;
 		vFall = 0;
 		pipes.clear();
@@ -576,103 +600,106 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 		placePipesTimer.start();
 		gameLoop.start();
 
-		// Ẩn nút Start sau khi nhấn
+		// Hide buttons after game start
 		startButton.setVisible(false);
 		restartButton.setVisible(false);
 		rankButton.setVisible(false);
 		menuButton.setVisible(false);
 		okButton.setVisible(false);
 		shareButton.setVisible(false);
-
-		// Gọi repaint để cập nhật lại màn hình
 		repaint();
 	}
 
-	// 95% credit of this showLeaderboardTable() goes to ChatGPT 4o:
-	public void showLeaderboardTable() {
-		if (leaderboardScrollPane != null) {
+	// 95% credit of creating this showLeaderboardTable() goes to ChatGPT-4o:
+	public void showLeaderboardTable() 
+	{
+		if (leaderboardScrollPane != null) 
+		{
 			leaderboardScrollPane.setVisible(showLeaderboard && !isGameStarted);
 			return;
 		}
 
 		String[] columns = {"Rank", "Username", "Score"};
 		Object[][] data = null;
-		try {
+		try 
+		{
 			// Extract list of players with highest score (max 100 players)
 			data = manager.getLeaderBoard(username);
-		} catch (IOException e) {
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace(System.err);
 		}
 
 		DefaultTableModel model = new DefaultTableModel(data, columns);
-		JTable table = new JTable(model) {
+		JTable table = new JTable(model) 
+		{
 			@Override
-			public boolean isCellEditable(int row, int column) {
+			public boolean isCellEditable(int row, int column) 
+			{
 				return false;
 			}
 		};
 
-		DefaultTableCellRenderer customRenderer = new DefaultTableCellRenderer() {
+		DefaultTableCellRenderer customRenderer = new DefaultTableCellRenderer() 
+		{
 			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value,
-					boolean isSelected, boolean hasFocus, int row, int column) {
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
+			{
+				JLabel label = new JLabel() 
+				{
+					@Override
+					protected void paintComponent(Graphics g) 
+					{
+						Graphics2D g2 = (Graphics2D) g.create();
+						g2.setFont(getFont());
+						g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-					JLabel label = new JLabel() {
-						@Override
-						protected void paintComponent(Graphics g) {
-							Graphics2D g2 = (Graphics2D) g.create();
-							g2.setFont(getFont());
-							g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+						String text = getText();
+						Icon icon = getIcon();
 
-							String text = getText();
-							Icon icon = getIcon();
+						if (!(column == 0 && row >= 0 && row <= 3 && icon != null) && text != null && !text.isEmpty()) 
+						{
+							FontMetrics fm = g2.getFontMetrics();
+							int textWidth = fm.stringWidth(text);
+							int textHeight = fm.getAscent();
 
-							if (!(column == 0 && row >= 0 && row <= 3 && icon != null) && text != null && !text.isEmpty()) {
-								FontMetrics fm = g2.getFontMetrics();
-								int textWidth = fm.stringWidth(text);
-								int textHeight = fm.getAscent();
+							// Calculate X based on alignment
+							int x = switch (getHorizontalAlignment()) 
+							{
+								case SwingConstants.LEFT -> 0;
+								case SwingConstants.CENTER -> (getWidth() - textWidth) / 2;
+								case SwingConstants.RIGHT -> getWidth() - textWidth;
+								default -> 0;
+							};
+							int y = (getHeight() + textHeight) / 2 - 2; // Vertically center
 
-								// Calculate X based on alignment
-								int x = switch (getHorizontalAlignment()) {
-									case SwingConstants.LEFT -> 0;
-									case SwingConstants.CENTER -> (getWidth() - textWidth) / 2;
-									case SwingConstants.RIGHT -> getWidth() - textWidth;
-									default -> 0;
-								};
-
-								int y = (getHeight() + textHeight) / 2 - 2; // Vertically center
-
-								g2.setColor(Color.GRAY); // Shadow color
-								g2.drawString(text, x + 1, y + 1); // Shadow (1px offset)
-							}
-
-							super.paintComponent(g); // Draw the actual label text
-							g2.dispose();
+							g2.setColor(Color.GRAY); // Shadow color
+							g2.drawString(text, x + 1, y + 1); // Shadow (1px offset)
 						}
-					};
 
+						super.paintComponent(g); // Draw the actual label text
+						g2.dispose();
+					}
+				};
 				label.setOpaque(false);
 				label.setFont(Helper.loadCustomFont("res/font/flappy-font.ttf", 16));
-				label.setHorizontalAlignment(column == 2 ? SwingConstants.RIGHT :
-											column == 1 ? SwingConstants.LEFT :
-											SwingConstants.CENTER);
+				label.setHorizontalAlignment(column == 2 ? SwingConstants.RIGHT : column == 1 ? SwingConstants.LEFT : SwingConstants.CENTER);
 
 				String rowUsername = table.getValueAt(row, 1).toString();
 				boolean isCurrentPlayer = rowUsername.equalsIgnoreCase(username);
 
-				if (value instanceof Icon icon) {
+				if (value instanceof Icon icon) 
+				{
 					label.setIcon(icon);
 					label.setText("");
-				} else {
+				} 
+				else 
 					label.setText(String.valueOf(value));
-				}
-
 				label.setForeground(isCurrentPlayer ? new Color(90, 170, 255) : Color.WHITE);
-
 				return label;
 			}
 		};
-
 
 		// Hide header
 		table.setTableHeader(null);
@@ -728,7 +755,8 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 				return createZeroButton();
 			}
 
-			private JButton createZeroButton() {
+			private JButton createZeroButton() 
+			{
 				JButton button = new JButton();
 				button.setPreferredSize(new Dimension(0, 0));
 				button.setBorder(BorderFactory.createEmptyBorder());
@@ -737,7 +765,8 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			}
 		});
 
-		for (int i = 0; i < table.getColumnCount(); i++) {
+		for (int i = 0; i < table.getColumnCount(); i++) 
+		{
 			table.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
 		}
 
@@ -753,19 +782,23 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 	}
 	
 	@Override
-	public void keyPressed(KeyEvent e) {
+	public void keyPressed(KeyEvent e) 
+	{
 		if (!isGameStarted && gameOver && e.getKeyCode() == KeyEvent.VK_R)
 			startGame();
-		else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+		else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) 
+		{
 			isPaused = !isPaused;
-			if (isPaused && !gameOver && isGameStarted) {
+			if (isPaused && !gameOver && isGameStarted) 
+			{
 				restartButton.setVisible(true);
 				menuButton.setVisible(true);
 				okButton.setVisible(true);
 				placePipesTimer.stop();
 				gameLoop.stop();
 			}
-			else if (!isPaused && !gameOver && isGameStarted) {
+			else if (!isPaused && !gameOver && isGameStarted) 
+			{
 				restartButton.setVisible(false);
 				menuButton.setVisible(false);
 				okButton.setVisible(false);

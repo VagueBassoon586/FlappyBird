@@ -102,10 +102,10 @@ public class Database {
     }
 
 public Object[][] getLeaderBoard(String username) throws IOException {
+		ImageIcon platinum = new ImageIcon(ImageIO.read(new File("res/img/Platinum.png")));
 		ImageIcon gold = new ImageIcon(ImageIO.read(new File("res/img/Gold.png")));
 		ImageIcon silver = new ImageIcon(ImageIO.read(new File("res/img/Silver.png")));
 		ImageIcon bronze = new ImageIcon(ImageIO.read(new File("res/img/Bronze.png")));
-		ImageIcon iron = new ImageIcon(ImageIO.read(new File("res/img/Iron.png")));
 
 		List<Object[]> leaderboard = new ArrayList<>();
 
@@ -122,10 +122,10 @@ public Object[][] getLeaderBoard(String username) throws IOException {
 				score = rs.getInt("score");
 
 				Object rankDisplay = switch (rank) {
-					case 1 -> gold;
-					case 2 -> silver;
-					case 3 -> bronze;
-					case 4 -> iron;
+					case 1 -> platinum;
+					case 2 -> gold;
+					case 3 -> silver;
+					case 4 -> bronze;
 					default -> rank;
 				};
 
