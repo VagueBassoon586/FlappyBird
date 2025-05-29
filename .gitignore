@@ -1,2 +1,2 @@
 *.db
-/bin/**/*.class
+/bin/FLB/*.class
