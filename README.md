@@ -1,8 +1,8 @@
 # FlappyBird remake
 
-Modified version of [LeDuyKhang2004](github.com/LeDuyKhang2004)'s FlappyBird.
+Modified version of [LeDuyKhang2004](https://github.com/LeDuyKhang2004)'s FlappyBird.
 
-Check out the original repo here: [DACS by LeDuyKhang2004](github.com/LeDuyKhang2004/DACS)
+Check out the original repo here: [DACS by LeDuyKhang2004](https://github.com/LeDuyKhang2004/DACS)
 
 The original code and this version started out about 95% similar. However, we eventually diverged — mainly due to differences in how we handled the user database.
 
