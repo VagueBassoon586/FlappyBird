@@ -53,13 +53,13 @@ cd /path/to/the/root/project/folder
 ### 🪟 For **Windows** users
 
 ```bash
-javac -cp "lib/*" -d bin src/FLB/*.java && java -cp "bin;lib/*" FLB.App
+javac -cp "lib/*" -d bin src/FLB/*.java && java --enable-native-access=ALL-UNNAMED -cp "bin;lib/*" FLB.App
 ```
 
 ### 🍎 For **macOS/Linux** users
 
 ```bash
-javac -cp "lib/*" -d bin src/FLB/*.java && java -cp "bin:lib/*" FLB.App
+javac -cp "lib/*" -d bin src/FLB/*.java && java --enable-native-access=ALL-UNNAMED -cp "bin:lib/*" FLB.App
 ```
 
 > ⚠️ The only difference is the `;` (Windows) vs `:` (macOS/Linux) in the classpath.
