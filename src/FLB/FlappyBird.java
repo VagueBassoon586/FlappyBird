@@ -805,7 +805,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 			}
 			repaint();
 		}
-		else if(isGameStarted && e.getKeyCode() == KeyEvent.VK_SPACE ) 
+		else if (isGameStarted && e.getKeyCode() == KeyEvent.VK_SPACE ) 
 			vFall = -9;
 	}
 
