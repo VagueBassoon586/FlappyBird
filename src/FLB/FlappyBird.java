@@ -667,7 +667,7 @@ public class FlappyBird extends JPanel implements ActionListener,KeyListener{
 
 							// Calculate X based on alignment
 							int x = switch (getHorizontalAlignment()) 
-							{
+							{ 
 								case SwingConstants.LEFT -> 0;
 								case SwingConstants.CENTER -> (getWidth() - textWidth) / 2;
 								case SwingConstants.RIGHT -> getWidth() - textWidth;
